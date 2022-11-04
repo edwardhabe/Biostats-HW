@@ -14,7 +14,7 @@ library(ggfortify)
 library(tidyverse)
 ```
 
-Importing data. stringsAsFactors will be applied during this step. 
+Importing data
 
 ```{r}
 soil <- read.csv(here("Data", "soil_reduced-1.csv"))
@@ -112,11 +112,11 @@ Peav_South_Mg <- soil[c(1, 7)]
 Peav_South_Mg <- Peav_South_Mg[28:45,]
 ```
 
-Histogram to check for outliers. It appears that there may be one at approximately 120 ppm, whih could throw off data to some degree. 
+Histogram to check for outliers. It appears that there may be one at approximately 120 ppm, which could throw off data to some degree. 
 
 ```{r}
 ggplot(Peav_South_Mg, aes(x = Mg_ppm)) +
-  geom_histogram()
+  geom_histogram() 
 ```
 
   
@@ -133,7 +133,7 @@ Finally, to compare Zinc abundance between all forests. Let's gather data for on
 ```{r}
 Zinc <- soil[c(1, 10)]
 ```
-Checking for outliers. There may be one at approximately 22 ppm, considering how far it is from most other points. ]
+Checking for outliers. There may be one at approximately 22 ppm, considering how far it is from most other points. I expect there to be a significant difference between forests, considering there is a great deal of variation in the data.
 
 ```{r}
 ggplot(Zinc, aes(x = Zn_ppm)) +
@@ -148,4 +148,4 @@ Zinc_Mat <- xtabs(Zn_ppm ~ Forest, data = Zinc)
 chisq.test(Zinc_Mat)
 ```
 
-This test determines that there is a significant difference in zinc content between forest location. 
+This test determines that there is a significant difference in zinc content between forest locations. 
