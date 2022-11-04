@@ -1,0 +1,151 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+Setting up packages and clearing R's brain 
+
+```{r}
+rm(list = ls())
+library(here)
+library(ggplot2)
+library(ggfortify)
+library(tidyverse)
+```
+
+Importing data. stringsAsFactors will be applied during this step. 
+
+```{r}
+soil <- read.csv(here("Data", "soil_reduced-1.csv"))
+```
+
+First, I need to determine the relationship between SOM % and Ca (ppm). I'll create a histogram to check for outliers in SOM 
+
+```{r}
+ggplot(soil, aes(x = SOM_percent)) +
+  geom_histogram()
+```
+There don't appear to be any isolated outliers, so I'll check Ca in the same way. 
+
+```{r}
+ggplot(soil, aes(x = Ca_ppm)) +
+  geom_histogram()
+```
+This looks good, too. Now, to run a summary of all variables in the data set. This will give us a better idea of how good our data is. 
+
+```{r}
+summary(soil)
+```
+There appear to be a lot of 'NA' throughout this data. That isn't good, as it means that certain samples were not adequate. Certain means are far different than max values as well, such as for Zn_ppm among others. 
+
+Now, it's time to determine the relationship between SOM_percent and Ca_ppm. As these are both forms of continuous data, a scatterplot should do the trick. 
+
+```{r}
+ggplot(soil, aes(x = SOM_percent, y = Ca_ppm)) +
+  geom_point() +
+  theme_bw()
+```
+
+Now, I'll need top guess the relationship between variables. Judging from this scatterplot, there is a weak positive relationship between SOM_percent ans Ca_ppm. It appears that there's a general trend, but it isn't too clearly defined and points aren't very close. 
+
+Since both the response and predictor are continuous, linear regression should be used to further analyze this data. 
+
+```{r}
+SOM_CA_mod <- lm(Ca_ppm ~ SOM_percent, data = soil)
+```
+
+Checking model assumptions prior to interpretation. 
+
+```{r}
+autoplot(SOM_CA_mod)
+```
+ Normal Q-Q shows a general trend with closely connected points--this is a good sign. A relatively flat fitted value is also what we're looking for. 
+ 
+ Now, we can look at the model outcome. 
+ 
+```{r}
+anova(SOM_CA_mod)
+```
+ 
+As p is greater than .05, there is no significant correlation between SOM_percent and Ca_ppm. This demonstrates a null hypothesis--no statistical relationship between the chosen variables. 
+
+Next, to check if the abundance of worms differs between Donnerville and Kip Tract. 
+
+
+I'll start by making 'Forest' a factor. 
+
+```{r}
+soil$Forest <- as.factor(soil$Forest)
+```
+
+Now, I'll select for solely worm data from Donnerville and Kip Tract
+
+```{r}
+Donner_Kip_Worms <- soil[c(1, 11)]
+
+Donner_Kip_Worms <- Donner_Kip_Worms[10:27, ]
+```
+
+Histogram to check for outliers. Data appears to be quite even with no noticeable outliers. 
+
+```{r}
+ggplot(Donner_Kip_Worms, aes(x = Worms)) +
+  geom_histogram()
+```
+
+
+As there is a difference between the two group means, a two sample t-test should be used. 
+
+```{r}
+
+t.test(Worms ~ Forest, data = Donner_Kip_Worms)
+```
+
+From this test, we can tell that there is a statistically significant difference between worms found at Donnerville and those collected from Kip Tract. 
+
+Now, I'll check on the difference between Mg_ppm in soil from Peavine and South Hammond. This code will look similar to the last problem. 
+
+```{r}
+Peav_South_Mg <- soil[c(1, 7)]
+
+Peav_South_Mg <- Peav_South_Mg[28:45,]
+```
+
+Histogram to check for outliers. It appears that there may be one at approximately 120 ppm, whih could throw off data to some degree. 
+
+```{r}
+ggplot(Peav_South_Mg, aes(x = Mg_ppm)) +
+  geom_histogram()
+```
+
+  
+I'll use a t test again to determine the relationship between these two means (Peavine and South Hammond) 
+
+```{r}
+t.test(Mg_ppm ~ Forest, data=Peav_South_Mg)
+```
+
+As this p value is greater than .05, there is no statistically significant relationship between Mg_ppm at either site. 
+
+Finally, to compare Zinc abundance between all forests. Let's gather data for only zinc and forest type. 
+
+```{r}
+Zinc <- soil[c(1, 10)]
+```
+Checking for outliers. There may be one at approximately 22 ppm, considering how far it is from most other points. ]
+
+```{r}
+ggplot(Zinc, aes(x = Zn_ppm)) +
+  geom_histogram()
+```
+
+I'll use a chi squared test to determine a relationship between categories (all forest types). 
+
+```{r}
+Zinc_Mat <- xtabs(Zn_ppm ~ Forest, data = Zinc)
+
+chisq.test(Zinc_Mat)
+```
+
+This test determines that there is a significant difference in zinc content between forest location. 
