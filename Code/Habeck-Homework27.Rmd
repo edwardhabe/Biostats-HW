@@ -1,0 +1,263 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Setting up R packages and clearing R's brain. 
+
+
+```{r}
+rm(list = ls())
+library(here)
+library(ggfortify)
+library(tidyverse)
+```
+
+Chapter 1 instructs us to download a lot of packages. R breaks whenever I load these, so I'll try going through chapter 2 without them. 
+
+```{r}
+install.packages(c(
+  "colorBlindness", "directlabels", "dplyr", "ggforce", "gghighlight", 
+  "ggnewscale", "ggplot2", "ggraph", "ggrepel", "ggtext", "ggthemes", 
+  "hexbin", "Hmisc", "mapproj", "maps", "munsell", "ozmaps", 
+  "paletteer", "patchwork", "rmapshaper", "scico", "seriation", "sf", 
+  "stars", "tidygraph", "tidyr", "wesanderson" 
+))
+```
+
+
+Importing data set bundled with ggplot2
+
+```{r}
+MPG <- mpg 
+```
+
+
+Now, to begin chapter 2. This begins with creating a basic scatterplot, something which I'm familiar with now.
+
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point()
+
+## mpg represents data, displ represents the x axis, and hwy represents the y axis. geom_point() indicates that we're working with a scatterplot. 
+```
+
+There is another way to go about this without writing out x= or y=. Separate x and y by a comma in parenthesis. 
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point()
+  
+```
+
+
+Next, the chapter covers altering color, size, and shape of charts. Learning to format charts will be useful for best presenting data. 
+
+```{r}
+ggplot(MPG, aes(displ, hwy, colour = class)) + 
+  geom_point()
+```
+
+Assigning colors to a variable will color-code it on a chart of two other variables. In this case, different colors represent different types of vehicles. 
+
+Colors can be specified as well. I'll do blue for this next one for all points. This will be written within geom_point() instead, highlighting all points in the scatterplot. 
+
+```{r}
+ggplot(MPG, aes(displ, hwy)) + 
+  geom_point(colour="blue")
+```
+
+The chapter then discusses faceting. This is when a chart is broken up to display data in subsets. Each subset will then be assigned to one of multiple new charts. 
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  facet_wrap(~class)
+```
+
+
+Now to try ggsmooth(), which adds a 'smooth' line to the plot we're working on. This can make visualizing a trend much easier in some cases. 
+
+```{r}
+ggplot(MPG, aes(displ, hwy)) +
+  geom_point() +
+  geom_smooth()
+```
+Additionally, lines can be adjusted--the 'smoothness' can be altered through specification. Here's an example: 
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  geom_smooth(span = 0.2)
+
+```
+
+"lm" can be used to make a linear model of this data instead. 
+
+```{r}
+ggplot(MPG, aes(displ, hwy)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+Sometimes, points on a scatterplot can have a high degree of overlap. There are some ways which we can work around this. 
+
+```{r}
+ggplot(mpg, aes(drv, hwy)) + 
+  geom_point()
+
+```
+
+Rather than this, jittering, box-plots, or violin-plots can be used to show data when one value is categorical. 
+
+```{r}
+ggplot(mpg, aes(drv, hwy)) + geom_jitter()
+ggplot(mpg, aes(drv, hwy)) + geom_boxplot()
+ggplot(mpg, aes(drv, hwy)) + geom_violin()
+
+## jitter adds random noise to data. The violin-plot demonstrates density of distribution in data.
+```
+
+Histograms and frequency polygons demonstrate the number of points per each 'bin' of values. Histograms use bars while frequency polygons use lines. 
+
+```{r}
+ggplot(mpg, aes(hwy)) +
+  geom_histogram()
+
+ggplot(mpg, aes(hwy)) + 
+  geom_freqpoly()
+```
+
+The chapter discusses the importance of altering binwidth--how one should play around with them to best fit their data. Higher binwidth simplifies and decreases the number of peaks on a chart. 
+
+```{r}
+ggplot(mpg, aes(hwy)) + 
+  geom_freqpoly(binwidth = 1.5)
+ggplot(mpg, aes(hwy)) + 
+  geom_freqpoly(binwidth = 0.5)
+```
+
+Color can also be edited to correspond with a particular variable! 
+
+```{r}
+ggplot(mpg,aes(displ, colour=drv)) +
+  geom_freqpoly(binwidth=1.0)
+
+ggplot(mpg, aes(displ, fill= drv)) +
+  geom_histogram(binwidth=1.0) +
+facet_wrap(~drv, ncol = 1)
+```
+
+Next, we go over bar charts. Like scatterplots, I've worked with these before to some degree. 
+
+```{r}
+ggplot(mpg, aes(manufacturer)) +
+  geom_bar()
+```
+
+There is another type of bar chart which displays "presummarised" data.
+
+```{r}
+Drugs <- data.frame(drug = c("a", "b", "c"),
+effect = c(4.2, 9.7, 6.1))
+
+## c() is used to create new columns with specified cells. For example, "drug" contains a, b, and c.
+
+```
+
+Points can be used to express data in the same way, They can take up less space than bars do. 
+
+```{r}
+ggplot(Drugs, aes(drug, effect)) + geom_bar(stat="identity") 
+
+ggplot(Drugs, aes(drug, effect)) + geom_point()
+```
+Data which depicts time can be expressed through line and path plots. Line plots will show data moving left to right (x values in order), and path plots show data in the order which it appears in the data set. 
+
+```{r}
+ggplot(economics, aes(date, unemploy / pop)) +
+  geom_line()
+
+ggplot(economics, aes(date, uempmed)) +
+  geom_line()
+```
+
+Next, the chapter has us combine both time series onto a single scatterplot for optimal data visualization. We can see the correlation between length and rate of unemployment together. 
+
+```{r}
+ggplot(economics, aes(unemploy / pop, uempmed)) +
+  geom_path() +
+  geom_point()
+
+year <- function(x) as.POSIXlt(x)$year + 1900
+ggplot(economics, aes(unemploy / pop, uempmed)) +
+  geom_path(colour = "grey50") +
+  geom_point(aes(colour = year(date)))
+
+```
+
+xlab() and ylab() can be used to provide names to axes. There are also ways to remove labels from axes. 
+
+```{r}
+ggplot(MPG, aes(cty, hwy)) + 
+  geom_point(alpha = 1 / 3)
+
+## "cty" and "hwy" become x and y axis labels. 
+
+ggplot(MPG, aes(cty, hwy)) +
+  geom_point(alpha = 1 / 3) +
+  xlab("City Driving (MPG)") +
+  ylab("Highway Driving (MPG)")
+
+# "City Driving (MPG)" and "Highway Driving (MPG)"inputted asx and y axius labels. 
+## Axes are removed by typing "NULL" into xlab() or ylab()
+
+ggplot(MPG, aes(cty, hwy)) +
+  geom_point(alpha = 1/3) +
+  xlab(NULL) +
+  ylab(NULL)
+```
+
+The limits of axes can be changed. This means that any data which falls outside of set limits will appear as NA. We can do this through xlim() and ylim() 
+
+```{r}
+ggplot(MPG, aes(drv, hwy)) +
+  geom_jitter(width=0.25)
+
+ggplot(MPG, aes(drv, hwy)) +
+  geom_jitter(width=0.25) +
+  xlim("f", "r") +
+  ylim(20, 30)
+
+## If data is on a continuous scale, NA should be inputted to indicate that we're only setting one limit. na.rm=TRUE ensures that rows containing NA data are removed. 
+
+ggplot(MPG, aes(drv, hwy)) +
+  geom_jitter(width=0.25, na.rm=TRUE) +
+  ylim(NA, 30)
+
+```
+
+Plots can be saved to an individual variable to work with as well. 
+
+```{r}
+p <- ggplot(mpg, aes(displ, hwy, colour = factor(cyl))) + 
+  geom_point()
+
+## Assigning plot to variable "p"
+```
+
+print() allows us to view the plot when needed. 
+
+```{r}
+print(p)
+```
+
+ggsave() saves a plot to your computer. Its dimensions can be specified (width and height)
+
+```{r}
+ggsave("plot.png", p, width=5, height=5)
+
+## Name png file in parenthesis before specifying the plot variable. 
+```
+
