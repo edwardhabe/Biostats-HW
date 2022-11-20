@@ -1,0 +1,90 @@
+---
+title: "Homework 25"
+output: html_notebook
+---
+
+
+Setting up packages and clearing R's brain. 
+
+```{r}
+rm(list = ls())
+library(here)
+library(dplyr)
+library(ggplot2)
+```
+
+Importing new data set into R
+
+```{r}
+Growth_Rate <- read.csv(here("Data", "plant.growth.rate.csv"))
+```
+
+First, I'll make a scatter plot from the data set. 
+
+```{r}
+ggplot(Growth_Rate, aes(x = soil.moisture.content, y = plant.growth.rate)) +
+  geom_point() +
+  ylab("Plant Growth Rate (mm/week)") +
+  theme_bw()
+```
+
+Next is to make a linear regression on the scatterplot. The function lm() works for this. 
+
+BEFORE THE REGRESSION YOU SHOULD BE GUESSTIMATING THE RELATIONSHIP AND THE SLOPE AND Y-INTERCEPT. I'D LIKE TO SEE THAT IN YOUR CODE.
+
+```{r}
+model_pgr <- lm(plant.growth.rate ~ soil.moisture.content, data = Growth_Rate)
+```
+
+ A new package will need to be installed for this next step. This will be used in producing further figures. 
+ 
+```{r}
+library(ggfortify)
+autoplot(model_pgr, smooth.color = NA)
+
+# Four separate figures are produced from this function. model_pgr is used for linear representations of data on figures. 
+```
+WHY DID YOU RUN AUTOPLOT AND HOW DO YOU INTERPRET THE RESULTS?
+
+
+Now to produce the scatterplot from earlier with linear regression. 
+
+```{r}
+ggplot(Growth_Rate, aes(x = soil.moisture.content, y = plant.growth.rate)) +
+  geom_point() +
+  geom_smooth(method = 'lm') +
+  ylab("Plant Growth Rate (mm/week") +
+  theme_bw()
+
+# geom_smooth(method = 'lm') adds linear regression to the scatterplot. 
+```
+Now, I'll make a boxplot reflecting new data. This requires a different function in ggplot once data is imported. 
+
+
+```{r}
+Daphnia <- read.csv(here("Data", "Daphniagrowth.csv"))
+```
+
+```{r}
+ggplot(Daphnia, aes(x = parasite, y = growth.rate)) + 
+  geom_boxplot() +
+  theme_bw()
+```
+
+Even though my parasite names can be read easily like this, I'll still attempt flipping this chart. This can be useful in the case that names do become mashed together. Luckily I've already done this in my problem set! 
+
+```{r}
+ggplot(Daphnia, aes(x = parasite, y = growth.rate)) +
+  geom_boxplot() +
+  theme_bw() +
+  coord_flip()
+```
+## Anova is the same as the previous linear regression model. However, the book says that this is used when we know that the "explanatory variable is a categorical variable". 
+
+```{r}
+model_grow <- lm(growth.rate ~ parasite, data = Daphnia)
+
+autoplot(model_grow, smooth.colour = NA)
+```
+YOUR CODE IS ALL FINE BUT YOU AREN'T SHOWING ME THAT YOU ARE THINKING ABOUT WHAT YOU ARE DOING,WHY YOU ARE DOING IT, AND WHAT IT MEANS.
+

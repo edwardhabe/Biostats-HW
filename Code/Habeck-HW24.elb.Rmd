@@ -1,0 +1,93 @@
+---
+title: "Homework 24"
+output: html_notebook
+---
+
+# For this homework, I'll go through the first half of chapter 5 in "Getting Started With R"
+
+## Setting up packages and clearing R's brain as usual--
+
+```{r}
+rm(list = ls())
+library(here)
+library(dplyr)
+library(ggplot2)
+```
+
+## Next, importing the data set into R.
+
+```{r}
+Ladybird_Data <- read.csv(here("Data", "ladybirds_morph_colour.csv"))
+```
+
+
+## The first thing I'll do with this data is summarize it. Using group_by() and summarize() will do the trick. 
+
+```{r}
+Totals <- Ladybird_Data %>% group_by(Habitat, morph_colour) %>% summarise(total.number = sum(number))
+
+## Here, we gather the total number of ladybirds, grouping data from all habitats and colors. 
+
+## Piping is used in this step, too. %>% acts as 'and then'. 
+```
+
+Next, I'll make a bar graph to display the raw data. The book mentions that this is the only appropriate time to really use a bar graph. 
+
+```{r}
+ggplot(Totals, aes(x = Habitat, y = total.number, fill = morph_colour)) +
+  geom_bar(stat = 'identity', position = 'dodge')
+
+## Here, the new 'Totals' data set is used, where all data was summarized together. This bar graph shows all variables, total number acting as the y axis and Habitat type as the x axis. This looks similar to previous work in ggplot, but the geom_bar() function is used instead. 'Identity' prevents R from calculating with data, and 'dodge' allows for multiple bars to be adjacent in one chart. 
+```
+
+## The color of this chart can be changed as done with previous ggplot charts. 
+
+```{r}
+ggplot(Totals, aes(x = Habitat, y = total.number, fill = morph_colour)) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  scale_fill_manual(values = c(black = "black", red = "red"))
+ 
+## Colors are assigned to their color name, as this is what appears on the chart. This corresponds better to the data, which contains red and black in morph_colour. 
+```
+
+## Next, I'll perform a chi-squared test on the data set. Using xtabs(), the necessary data matrix can be produced. 
+
+```{r}
+Ladybird_Matrix <- xtabs(number ~ Habitat + morph_colour, data = Ladybird_Data)
+
+```
+
+## Now, I'll perform the actual chi-squared test. This will provide crucial information related to the data set, including significance and association of variables. 
+
+```{r}
+chisq.test(Ladybird_Matrix)
+```
+## Next, I'll move onto t-tests, comparing two groups of numerical data. I'll open up a new data set for this. 
+
+```{r}
+Ozone_Data <- read.csv(here("Data", "ozone.csv"))
+```
+THE OZONE DATA ARE NOT IN YOUR DATA FOLDER SO I AM UNABLE TO RUN  YOUR CODE.
+
+
+## First, I'll make some histograms from this new data. Using geom_histogram() and facet_wrap(), I can create two separate histograms (for variables East and West). 
+
+```{r}
+ggplot(Ozone_Data, aes(x = Ozone)) + 
+  geom_histogram(binwidth = 10) +
+  facet_wrap(~ Garden.location, ncol = 1) + 
+  theme_bw()
+
+## Altering binwidth allows us to create a tidier-looking histogram. X will represent Ozone, and the y axis will automatically become 'count'. 
+```
+
+## Now to perform the actual t-test itself. This will compare garden location and Ozone from the 'Ozone_Data' data set. 
+
+```{r}
+t.test(Ozone ~ Garden.location, data = Ozone_Data)
+```
+
+BUT HOW DO YOU INTERPRET THE CHI-SQUARE AND T-TESTS?
+
+THIS CODE LOOKS OK, BUT I'M NOT SURE YOU ARE REALLY THINKING ABOUT THE WHY AND EXPLANATION FOR EVERYTHING YOU ARE DOING
+
